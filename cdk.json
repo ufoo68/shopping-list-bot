@@ -1,3 +1,3 @@
 {
-  "app": "npx ts-node bin/cdk-line-bot.ts"
+  "app": "node -r dotenv/config -r ts-node/register bin/cdk-line-bot.ts"
 }
