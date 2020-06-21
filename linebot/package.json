@@ -3,11 +3,6 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "ufoo68 <mitarou.yuutarou@gmail.com> (https://qiita.com/ufoo68)",
-  "license": "ISC",
   "dependencies": {
     "@line/bot-sdk": "^6.8.4",
     "@types/aws-lambda": "^8.10.46",

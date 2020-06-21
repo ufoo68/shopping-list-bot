@@ -10,7 +10,8 @@
     "test": "jest",
     "bootstrap": "cdk bootstrap",
     "synth": "cdk synth",
-    "deploy": "cdk deploy"
+    "deploy": "cdk deploy",
+    "destroy": "cdk destroy"
   },
   "devDependencies": {
     "@types/node": "10.17.5",
