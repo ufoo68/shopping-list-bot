@@ -18,11 +18,11 @@ async function eventHandler(event: Types.MessageEvent): Promise<any> {
     if (event.type !== 'message' || event.message.type !== 'text' || !event.source.userId) {
         return null
     }
-    const message = conversation(event.message.text)
+    const response = conversation(event.message.text)
 
-    const replyText = [message.message]
+    const replyText = [response.message]
 
-    const shoppingList = await dbHandler(message.type, event.message.text, event.source.userId)
+    const shoppingList = await dbHandler(response.type, event.message.text, event.source.userId)
     if (shoppingList.length > 0) {
         shoppingList.map(value => replyText.push(value))
     }
@@ -30,7 +30,6 @@ async function eventHandler(event: Types.MessageEvent): Promise<any> {
 }
 
 export const handler: Lambda.APIGatewayProxyHandler = async (proxyEevent: Lambda.APIGatewayEvent, _context) => {
-    console.log(JSON.stringify(proxyEevent))
 
     const signature = proxyEevent.headers['X-Line-Signature']
     if (!Line.validateSignature(proxyEevent.body!, channelSecret, signature)) {

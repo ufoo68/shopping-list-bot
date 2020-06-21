@@ -12,10 +12,8 @@ async function addList(message: string, userId: string): Promise<string[]> {
       }
     },
   }).promise()
-  const shoppingList: AWS.DynamoDB.AttributeValue[] = [{ S: message }]
-  if (Item) {
-    Item.shoppingList.L?.map(value=>shoppingList.push(value))
-  }
+  const shoppingList = Item?.shoppingList.L?.map(value=>value) ?? []
+  shoppingList.push({ S: message })
   await dynamodb.putItem({
     TableName: process.env.TABLE_NAME!,
     Item: {
@@ -39,11 +37,7 @@ async function confirmList(userId: string): Promise<string[]> {
       }
     },
   }).promise()
-  const shoppingList: string[] = []
-  if (Item) {
-    Item.shoppingList.L?.map(value=>shoppingList.push(value.S!))
-  }
-  return shoppingList
+  return Item?.shoppingList.L?.map(value=>value.S ?? '') ?? []
 }
 
 async function clearList(userId: string): Promise<string[]> {
