@@ -1,5 +1,6 @@
 import * as cdk from '@aws-cdk/core'
-import { LambdaApi } from 'cdk-lambda-api'
+import * as lambda from '@aws-cdk/aws-lambda'
+import * as apigateway from '@aws-cdk/aws-apigateway'
 import * as dynamodb from '@aws-cdk/aws-dynamodb'
 
 export class CdkLineBotStack extends cdk.Stack {
@@ -10,8 +11,10 @@ export class CdkLineBotStack extends cdk.Stack {
       partitionKey: { name: 'userId', type: dynamodb.AttributeType.STRING }
     })
 
-    const lambdaApi = new LambdaApi(this, 'LineBot', {
-      lambdaPath: 'Linebot',
+    const handler = new lambda.Function(this, 'Function', {
+      runtime: lambda.Runtime.NODEJS_12_X,
+      handler: 'index.handler',
+      code: lambda.Code.fromAsset('linebot'),
       environment: {
         ACCESS_TOKEN: process.env.ACCESS_TOKEN!,
         CHANNEL_SECRET: process.env.CHANNEL_SECRET!,
@@ -19,6 +22,10 @@ export class CdkLineBotStack extends cdk.Stack {
       }
     })
 
-    table.grantFullAccess(lambdaApi.handler)
+    table.grantFullAccess(handler) 
+
+    const api = new apigateway.RestApi(this, 'Api')
+    api.root.addMethod('POST', new apigateway.LambdaIntegration(handler))
+
   }
 }
