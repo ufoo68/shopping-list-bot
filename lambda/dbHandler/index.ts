@@ -1,5 +1,5 @@
 import * as AWS from 'aws-sdk'
-import { MessageType } from './conversationModel'
+import { MessageType, DbHandlerEvent, DbHandlerEventResponse } from 'layer'
 
 const dynamodb = new AWS.DynamoDB()
 
@@ -12,7 +12,7 @@ async function addList(message: string, userId: string): Promise<string[]> {
       }
     },
   }).promise()
-  const shoppingList = Item?.shoppingList.L?.map(value=>value) ?? []
+  const shoppingList = Item?.shoppingList.L?.map(value => value) ?? []
   shoppingList.push({ S: message })
   await dynamodb.putItem({
     TableName: process.env.TABLE_NAME!,
@@ -37,7 +37,7 @@ async function confirmList(userId: string): Promise<string[]> {
       }
     },
   }).promise()
-  return Item?.shoppingList.L?.map(value=>value.S ?? '') ?? []
+  return Item?.shoppingList.L?.map(value => value.S ?? '') ?? []
 }
 
 async function clearList(userId: string): Promise<string[]> {
@@ -49,16 +49,16 @@ async function clearList(userId: string): Promise<string[]> {
       }
     },
   }).promise()
-  return[]
+  return []
 }
 
-export async function dbHandler(messageType: MessageType, message: string, userId: string): Promise<string[]> {
-  switch(messageType) {
+export const handler = async ({ messageType, message, userId }: DbHandlerEvent): Promise<DbHandlerEventResponse> => {
+  switch (messageType) {
     case MessageType.Add:
-      return await addList(message, userId)
+      return { items: await addList(message, userId) }
     case MessageType.Confirm:
-      return await confirmList(userId)
+      return { items: await confirmList(userId) }
     case MessageType.Clear:
-      return await clearList(userId)
+      return { items: await clearList(userId) }
   }
 }

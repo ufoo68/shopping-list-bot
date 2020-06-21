@@ -1,9 +1,11 @@
 import * as Lambda from 'aws-lambda'
+import * as AWS from 'aws-sdk'
 import * as Line from '@line/bot-sdk'
 import * as Types from '@line/bot-sdk/lib/types'
 import { buildReplyText } from 'line-message-builder'
-import { conversation } from './conversationModel'
-import { dbHandler } from './dbHandler'
+import { analyzeMessage, DbHandlerEvent, DbHandlerEventResponse } from 'layer'
+
+const lambda = new AWS.Lambda()
 
 const channelAccessToken = process.env.ACCESS_TOKEN!
 const channelSecret = process.env.CHANNEL_SECRET!
@@ -18,15 +20,26 @@ async function eventHandler(event: Types.MessageEvent): Promise<any> {
     if (event.type !== 'message' || event.message.type !== 'text' || !event.source.userId) {
         return null
     }
-    const response = conversation(event.message.text)
+    const responseOfAnalyze = analyzeMessage(event.message.text)
 
-    const replyText = [response.message]
-
-    const shoppingList = await dbHandler(response.type, event.message.text, event.source.userId)
-    if (shoppingList.length > 0) {
-        shoppingList.map(value => replyText.push(value))
+    const dbHandlerEvent: DbHandlerEvent = {
+        messageType: responseOfAnalyze.type,
+        message: event.message.text,
+        userId: event.source.userId,
     }
-    return client.replyMessage(event.replyToken, buildReplyText(replyText))
+
+    const responseOfHandler = await lambda.invoke({
+        FunctionName: process.env.FUNCTION_NAME!,
+        Payload: JSON.stringify(dbHandlerEvent)
+    }).promise()
+    const shoppingList: DbHandlerEventResponse = JSON.parse(responseOfHandler.Payload as string)
+    if (shoppingList.items.length > 0) {
+        return client.replyMessage(event.replyToken, buildReplyText([
+            responseOfAnalyze.message,
+            ...shoppingList.items,
+        ]))
+    }
+    return client.replyMessage(event.replyToken, buildReplyText(responseOfAnalyze.message))
 }
 
 export const handler: Lambda.APIGatewayProxyHandler = async (proxyEevent: Lambda.APIGatewayEvent, _context) => {
