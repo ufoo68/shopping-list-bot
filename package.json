@@ -8,6 +8,7 @@
     "build": "yarn upgrade layer && tsc",
     "watch": "tsc -w",
     "test": "jest",
+    "cdk": "cdk",
     "bootstrap": "cdk bootstrap",
     "synth": "yarn build && cdk synth",
     "deploy": "yarn build && cdk deploy",
