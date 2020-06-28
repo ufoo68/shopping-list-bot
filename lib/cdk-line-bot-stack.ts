@@ -2,6 +2,7 @@ import * as cdk from '@aws-cdk/core'
 import * as lambda from '@aws-cdk/aws-lambda'
 import * as apigateway from '@aws-cdk/aws-apigateway'
 import * as dynamodb from '@aws-cdk/aws-dynamodb'
+import { LambdaUtil } from './lambdaUtil'
 
 export class CdkLineBotStack extends cdk.Stack {
   constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
@@ -16,31 +17,27 @@ export class CdkLineBotStack extends cdk.Stack {
       code: lambda.Code.fromAsset('layer.out'),
     })
 
-    const dbHandler = new lambda.Function(this, 'DbHandlerFunction', {
-      runtime: lambda.Runtime.NODEJS_12_X,
-      handler: 'index.handler',
-      code: lambda.Code.fromAsset('lambda/dbHandler'),
-      layers: [layer],
+    const dbHandler = new LambdaUtil(this, 'DbHandlerFunction', {
+      path: 'lambda/dbHandler',
+      layer,
       environment: {
         TABLE_NAME: table.tableName,
-      }
-    })
+      },
+    }).handler
 
-    const linebot = new lambda.Function(this, 'LineBotFunction', {
-      runtime: lambda.Runtime.NODEJS_12_X,
-      handler: 'index.handler',
-      code: lambda.Code.fromAsset('lambda/linebot'),
-      layers: [layer],
+    const linebot = new LambdaUtil(this, 'LineBotFunction', {
+      path: 'lambda/linebot',
+      layer,
       environment: {
         ACCESS_TOKEN: process.env.ACCESS_TOKEN!,
         CHANNEL_SECRET: process.env.CHANNEL_SECRET!,
         FUNCTION_NAME: dbHandler.functionName,
       }
-    })
+    }).handler
 
     dbHandler.grantInvoke(linebot)
 
-    table.grantFullAccess(dbHandler) 
+    table.grantFullAccess(dbHandler)
 
     const api = new apigateway.RestApi(this, 'Api')
     api.root.addMethod('POST', new apigateway.LambdaIntegration(linebot))
