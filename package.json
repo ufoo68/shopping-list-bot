@@ -14,12 +14,12 @@
     "destroy": "cdk destroy"
   },
   "devDependencies": {
-    "@aws-cdk/aws-apigateway": "^1.46.0",
-    "@aws-cdk/aws-dynamodb": "^1.46.0",
-    "@aws-cdk/aws-lambda": "^1.46.0",
-    "@aws-cdk/core": "^1.46.0",
+    "@aws-cdk/aws-apigateway": "1.46.0",
+    "@aws-cdk/aws-dynamodb": "1.46.0",
+    "@aws-cdk/aws-lambda": "1.46.0",
+    "@aws-cdk/core": "1.46.0",
     "@types/node": "10.17.5",
-    "aws-cdk": "^1.46.0",
+    "aws-cdk": "1.46.0",
     "dotenv": "8.2.0",
     "jest": "24.9.0",
     "ts-jest": "24.3.0",
@@ -27,11 +27,11 @@
     "typescript": "3.7.5"
   },
   "dependencies": {
-    "@line/bot-sdk": "^6.8.4",
-    "@types/aws-lambda": "^8.10.46",
-    "aws-lambda": "^1.0.5",
-    "aws-sdk": "^2.634.0",
+    "@line/bot-sdk": "6.8.4",
+    "@types/aws-lambda": "8.10.56",
+    "aws-lambda": "1.0.6",
+    "aws-sdk": "2.701.0",
     "layer": "file:./layer",
-    "line-message-builder": "^1.1.1"
+    "line-message-builder": "1.1.1"
   }
 }
